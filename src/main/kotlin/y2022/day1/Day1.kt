@@ -27,8 +27,8 @@ fun findTopThreeMaxCalories(input: List<String>): Int = getCaloriesMap(input).va
 
 
 fun main() {
-//    val input = File("src/main/resources/y2022/day1/testInput.txt").useLines { it.toList() }
-    val input = File("src/main/resources/y2022/day1/input.txt").useLines { it.toList() }
+//    val input = File("src/main/resources/y2022/day1/testInput").useLines { it.toList() }
+    val input = File("src/main/resources/y2022/day1/input").useLines { it.toList() }
     println(findMaxCalories(input))
     println(findTopThreeMaxCalories(input))
 }
