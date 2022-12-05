@@ -1,9 +1,16 @@
 package common
 
 import java.io.File
+import java.io.FileInputStream
+import java.util.*
 
-const val year = 2022
-const val day = 5
+private val properties: Properties by lazy {
+    val props = Properties()
+    props.load(FileInputStream("application.properties"))
+    props
+}
+private val year = properties.getProperty("generator.year").toInt()
+private val day = properties.getProperty("generator.day").toInt()
 
 fun main() {
 
