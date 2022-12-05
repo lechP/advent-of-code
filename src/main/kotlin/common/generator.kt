@@ -3,7 +3,7 @@ package common
 import java.io.File
 
 const val year = 2022
-const val day = 6
+const val day = 5
 
 fun main() {
 
