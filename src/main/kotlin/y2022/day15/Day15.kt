@@ -1,6 +1,5 @@
 package y2022.day15
 
-import common.Coordinate
 import common.Point
 import common.printSolutions
 import kotlin.math.abs
