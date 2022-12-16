@@ -45,17 +45,40 @@ class Day15Test : FreeSpec({
             }
 
         }
-
-
-        "add overlapping element" {
-            integrate(listOf(1..3), 3..5) shouldBe listOf(1..5)
+        "left end overlapping" - {
+            "right end is last" {
+                integrate(listOf(1..3), 3..5) shouldBe listOf(1..5)
+            }
+            "right end is just before another range" {
+                integrate(listOf(1..3, 6..8), 2..5) shouldBe listOf(1..8)
+            }
+            "right end is before another range" {
+                integrate(listOf(1..3, 7..8), 2..5) shouldBe listOf(1..5, 7..8)
+            }
+        }
+        "right end overlapping" - {
+            "left end is first" {
+                integrate(listOf(3..5), 1..3) shouldBe listOf(1..5)
+            }
+            "left end is just after another range" {
+                integrate(listOf(6..8, 12..20), 9..14) shouldBe listOf(6..20)
+            }
+            "left end is after another range" {
+                integrate(listOf(6..8, 12..20), 10..14) shouldBe listOf(6..8, 10..20)
+            }
         }
 
-        // pomiedzy
-        // nachodzi na jeden
-        // nachodzi na 2
-        // obejmuje 1
-        // nachodzi na 2 i obejmuje 1
+        "new range over old range" {
+            integrate(listOf(10..12), 2..14) shouldBe listOf(2..14)
+        }
+
+        "new range over first of old ranges" {
+            integrate(listOf(5..10, 20..30), 1..12) shouldBe listOf(1..12, 20..30)
+        }
+
+        "new range over last of old ranges" {
+            integrate(listOf(5..10, 20..30), 18..32) shouldBe listOf(5..10, 18..32)
+        }
 
     }
 })

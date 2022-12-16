@@ -9,10 +9,25 @@ fun task1(input: List<String>): Int {
     val testedY = input.first().toInt()
     val sensorOutputs = input.drop(1).map { it.toSensorOutput() }
     // hugely suboptimal - elegant solution should be a mutable set of ranges
-    val ranges = sensorOutputs.mapNotNull { it.coverageOnY(testedY) }.map { it.toSet() }
-    val allPositions = ranges.reduce { acc, intRange -> acc + intRange }
+    val ranges = sensorOutputs.mapNotNull { it.coverageOnY(testedY) }
+    val r = ranges.map { it.toSet() }
+    val allPositions = r.reduce { acc, intRange -> acc + intRange }
     val beaconsOnY = sensorOutputs.filter { it.beacon.y == testedY }.map { it.beacon.x }.toSet()
+    println(beaconsOnY)
     return (allPositions - beaconsOnY).size
+}
+
+fun task1v2(input: List<String>): Int {
+    val testedY = input.first().toInt()
+    val sensorOutputs = input.drop(1).map { it.toSensorOutput() }
+    val ranges = sensorOutputs.mapNotNull { it.coverageOnY(testedY) }
+    var wholeRange = emptyList<IntRange>()
+    ranges.forEach { rng ->
+        wholeRange = integrate(wholeRange, rng)
+    }
+    val beaconsInRange = sensorOutputs.filter { it.beacon.y == testedY }.map { it.beacon.x }.toSet()
+        .count { beacon -> wholeRange.any { beacon in it } }
+    return wholeRange.sumOf { it.last - it.first + 1 } - beaconsInRange
 }
 
 
@@ -48,4 +63,4 @@ data class SensorOutput(
     }
 }
 
-fun main() = printSolutions(15, 2022, { input -> task1(input) }, { input -> task2(input) })
+fun main() = printSolutions(15, 2022, { input -> task1v2(input) }, { input -> task2(input) })
