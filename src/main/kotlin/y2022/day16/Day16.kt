@@ -2,53 +2,64 @@ package y2022.day16
 
 import common.printSolutions
 
-
 fun task1(input: List<String>): Int {
     val valves = input.map { it.toValve() }
-    var current = valves.first()
-    var timeElapsed = 0
-    var pressureReleased = 0
-    val opened = mutableListOf<String>()
-    val ids = valves.map { it.id }
     val map = valves.associateBy { it.id }
+    val paths = precomputeShortestPaths(map)
+    return findMaxPressure("AA", 0, map, paths, emptySet())
+}
+
+fun precomputeShortestPaths(valvesMap: Map<String, Valve>): Map<Pair<String, String>, Int> {
+    val ids = valvesMap.keys
     val paths = mutableMapOf<Pair<String, String>, Int>()
-
-    // wybiore sobie co mi sie najbardziej opłaca w kolejnym ruchu
-    while (timeElapsed < 30) {
-        val timeRemaining = 30 - timeElapsed
-        val otherIds = ids - current.id
-        for (otherId in otherIds) {
-            if (paths[current.id to otherId] == null) {
-                paths[current.id to otherId] = bfs(current, map[otherId]!!, map)
+    for (start in ids) {
+        for (end in ids) {
+            if (start != end) {
+                val length = when {
+                    paths[start to end] != null -> paths[start to end]!!
+                    paths[end to start] != null -> paths[end to start]!!
+                    else -> bfs(valvesMap[start]!!, valvesMap[end]!!, valvesMap)
+                }
+                if (length > -1) {
+                    paths[start to end] = length
+                    paths[end to start] = length
+                }
             }
         }
-        val distances = otherIds.associateWith { otherId ->
-            if (paths[current.id to otherId] == null) {
-                paths[current.id to otherId] = bfs(current, map[otherId]!!, map)
-            }
-            paths[current.id to otherId]!!
-        }
-        val possibleGains = distances
-            .filterKeys { it !in opened }
-            .filterValues { it < timeRemaining }
-            .map { (id, distance) ->
-                id to (timeRemaining - 1 - distance) * map[id]!!.pressure
-            }
-        // choosing local maximum isn't optimal for the whole path
-        val maxGain = possibleGains.maxByOrNull { it.second }
-        println("max gain: $maxGain")
-        if (maxGain != null) {
-            opened.add(maxGain.first)
-            timeElapsed += distances[maxGain.first]!! + 1
-            println("time elapsed: $timeElapsed")
-            pressureReleased += maxGain.second
-            current = map[maxGain.first]!!
-        } else {
-            timeElapsed = 30
-        }
-
     }
-    return pressureReleased
+    return paths.toMap()
+}
+
+fun findMaxPressure(
+    current: String,
+    usedTime: Int,
+    valvesMap: Map<String, Valve>,
+    paths: Map<Pair<String, String>, Int>,
+    openedValves: Set<String>,
+): Int {
+    val totalTime = 30
+    val timeToOpenValve = 1
+
+    val possibleValves = valvesMap
+        .filter { paths.containsKey(current to it.key) }
+        .filter { it.value.pressure > 0 }
+        .filter { it.key !in openedValves }
+
+    return possibleValves.maxOfOrNull { (id, valve) ->
+        val updatedUsedTime = usedTime + paths[current to id]!! + timeToOpenValve
+        if (updatedUsedTime > totalTime) {
+            0
+        } else {
+            val gainedPressure = (totalTime - updatedUsedTime) * valve.pressure
+            gainedPressure + findMaxPressure(
+                current = id,
+                usedTime = updatedUsedTime,
+                valvesMap = valvesMap,
+                paths = paths,
+                openedValves = openedValves + id
+            )
+        }
+    } ?: 0
 }
 
 //Valve MF has flow rate=0; tunnels lead to valves QO, GQ
