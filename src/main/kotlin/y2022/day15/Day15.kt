@@ -6,7 +6,7 @@ import kotlin.math.abs
 
 
 fun task1(input: List<String>): Int {
-    val testedY = input.first().toInt()
+    val testedY = input.first().split(',')[0].toInt()
     val sensorOutputs = input.drop(1).map { it.toSensorOutput() }
     // hugely suboptimal - elegant solution should be a mutable set of ranges
     val ranges = sensorOutputs.mapNotNull { it.coverageOnY(testedY) }
@@ -18,7 +18,7 @@ fun task1(input: List<String>): Int {
 }
 
 fun task1v2(input: List<String>): Int {
-    val testedY = input.first().toInt()
+    val testedY = input.first().split(',')[0].toInt()
     val sensorOutputs = input.drop(1).map { it.toSensorOutput() }
     val ranges = sensorOutputs.mapNotNull { it.coverageOnY(testedY) }
     var wholeRange = emptyList<IntRange>()
@@ -31,7 +31,43 @@ fun task1v2(input: List<String>): Int {
 }
 
 
-fun task2(input: List<String>) = -1
+fun task2(input: List<String>): Long {
+    val limit = input.first().split(',')[1].toInt()
+    val sensorOutputs = input.drop(1).map { it.toSensorOutput() }
+    val beacons = sensorOutputs.map { it.beacon }.toSet()
+
+    for (y in 0..limit) {
+        val coverage = wholeCoverageOnY(y, sensorOutputs)
+        coverage.forEachIndexed { index, range ->
+            if (range.last < limit) {
+                val end = if (index + 1 == coverage.size) {
+                    limit
+                } else {
+                    coverage[index + 1].first - 1
+                }
+
+                for (k in range.last + 1..end) {
+                    val candidate = Point(y = y, x = k)
+                    if (candidate !in beacons) {
+                        return candidate.x * 4000000L + candidate.y
+                    }
+                }
+            }
+        }
+    }
+
+    return -1
+}
+
+fun wholeCoverageOnY(y: Int, sensorOutputs: List<SensorOutput>): List<IntRange> {
+    val ranges = sensorOutputs.mapNotNull { it.coverageOnY(y) }
+    var wholeRange = emptyList<IntRange>()
+    ranges.forEach { rng ->
+        wholeRange = integrate(wholeRange, rng)
+    }
+    return wholeRange
+}
+
 
 //Sensor at x=3050752, y=2366125: closest beacon is at x=2715626, y=2000000
 private fun String.toSensorOutput() = split("=").let {
