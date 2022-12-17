@@ -114,29 +114,4 @@ fun List<Coordinate>.canMoveDown(rocksFormation: Map<Coordinate, Char>): Boolean
     rocksFormation.containsKey(Coordinate(it.row - 1, it.col))
 }
 
-fun task2(input: List<String>): Long {
-
-    return -1L
-}
-
-
-fun main() = printSolutions(17, 2022, { input -> task1(input) }, { input -> task2(input) })
-//{
-//    val rocks = 1000000000000
-//    val preamble = listOf(1, 3, 2, 1, 2, 1, 3, 2, 2, 0, 1, 3, 2, 0, 2)
-//    val pattern =
-//        listOf(1, 3, 3, 4, 0, 1, 2, 3, 0, 1, 1, 3, 2, 2, 0, 0, 2, 3, 4, 0, 1, 2, 1, 2, 0, 1, 2, 1, 2, 0, 1, 3, 2, 0, 0)
-//    println(preamble.size)
-//    println(pattern.size)
-//    val cycles = (rocks - preamble.size) / pattern.size
-//    val reminderSize = (rocks - preamble.size) % pattern.size.toLong()
-//
-//    val result = preamble.sum().toLong() + cycles*pattern.sum() + pattern.take(reminderSize.toInt()).sum()
-//    println(result)
-//}
-
-// pattern in 1:
-// 1, 3, 3, 4, 0, 1, 2, 3, 0, 1, 1, 3, 2, 2, 0, 0, 2, 3, 4, 0, 1, 2, 1, 2, 0, 1, 2, 1, 2, 0, 1, 3, 2, 0, 0
-// 1, 3, 3, 4, 0, 1, 2, 3, 0, 1, 1, 3, 2, 2, 0, 0, 2, 3, 4, 0, 1, 2, 1, 2, 0, 1, 2, 1, 2, 0, 1, 3, 2, 0, 0
-
-// pattern in 2:
+fun main() = printSolutions(17, 2022, { input -> task1(input) }, { })
