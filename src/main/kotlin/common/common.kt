@@ -24,3 +24,13 @@ fun printSolutions(
         println(secondSolution(input))
     }
 }
+
+fun printGrid(valuesMap: Map<Coordinate, Char>, rows: IntRange, cols: IntRange) {
+    println()
+    for (r in rows.reversed()) {
+        for (c in cols) {
+            print(valuesMap.getOrDefault(Coordinate(r, c), '.'))
+        }
+        println()
+    }
+}

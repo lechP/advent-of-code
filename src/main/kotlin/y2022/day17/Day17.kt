@@ -20,11 +20,10 @@ fun simulateRocks(rocksCount: Int, gasPattern: String): Pair<Int, List<Int>> {
     var peak = 0
     val peakGrowths = mutableListOf<Int>()
 
+    // floor r=0 c=1..7
     val rocksFormation = (1..7).associate {
         Coordinate(0, it) to '-'
     }.toMutableMap()
-
-    // floor r=0 c=1..7
 
     do {
         rocksFallen += 1
@@ -53,18 +52,6 @@ fun simulateRocks(rocksCount: Int, gasPattern: String): Pair<Int, List<Int>> {
 
     return peak to peakGrowths
 }
-
-
-fun printState(map: Map<Coordinate, Char>, rows: IntRange, cols: IntRange) {
-    println()
-    for (r in rows.reversed()) {
-        for (c in cols) {
-            print(map.getOrDefault(Coordinate(r, c), '.'))
-        }
-        println()
-    }
-}
-
 
 fun generateRock(shape: String, currentPeak: Int): List<Coordinate> =
     when (shape) {
@@ -100,6 +87,10 @@ fun List<Coordinate>.moveDown() = map {
     Coordinate(row = it.row - 1, col = it.col)
 }
 
+fun List<Coordinate>.canMoveDown(rocksFormation: Map<Coordinate, Char>): Boolean = none {
+    rocksFormation.containsKey(Coordinate(it.row - 1, it.col))
+}
+
 fun List<Coordinate>.moveLeft(rocksFormation: Map<Coordinate, Char>) =
     if (any { it.col == 1 } || any { rocksFormation.containsKey(Coordinate(it.row, it.col - 1)) })
         this
@@ -109,9 +100,5 @@ fun List<Coordinate>.moveRight(rocksFormation: Map<Coordinate, Char>) =
     if (any { it.col == 7 } || any { rocksFormation.containsKey(Coordinate(it.row, it.col + 1)) })
         this
     else map { Coordinate(row = it.row, col = it.col + 1) }
-
-fun List<Coordinate>.canMoveDown(rocksFormation: Map<Coordinate, Char>): Boolean = none {
-    rocksFormation.containsKey(Coordinate(it.row - 1, it.col))
-}
 
 fun main() = printSolutions(17, 2022, { input -> task1(input) }, { })
