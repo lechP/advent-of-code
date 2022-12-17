@@ -2,3 +2,10 @@
 .gradle
 build
 *.properties
+
+#ignore inputs as they should not be publicly available: https://twitter.com/ericwastl/status/1465805354214830081
+input
+testInput
+
+#mac os files
+.DS_Store
