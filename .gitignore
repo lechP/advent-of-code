@@ -5,7 +5,11 @@ build
 
 #ignore inputs as they should not be publicly available: https://twitter.com/ericwastl/status/1465805354214830081
 input
+input1
+input2
 testInput
+testInput1
+testInput2
 
 #mac os files
 .DS_Store
