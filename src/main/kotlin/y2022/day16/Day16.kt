@@ -62,6 +62,57 @@ fun findMaxPressure(
     } ?: 0
 }
 
+fun findMaxPressureV2(
+    currentHuman: String,
+    currentElephant: String,
+    usedTimeHuman: Int,
+    usedTimeElephant: Int,
+    valvesMap: Map<String, Valve>,
+    paths: Map<Pair<String, String>, Int>,
+    openedValves: Set<String>,
+): Int {
+    val totalTime = 26
+    val timeToOpenValve = 1
+
+    val possibleHumanValves = valvesMap
+        .filter { paths.containsKey(currentHuman to it.key) }
+        .filter { it.value.pressure > 0 }
+        .filter { it.key !in openedValves }
+
+    val possibleElephantValves = valvesMap
+        .filter { paths.containsKey(currentElephant to it.key) }
+        .filter { it.value.pressure > 0 }
+        .filter { it.key !in openedValves }
+
+    return possibleHumanValves.maxOfOrNull { (idH, valveH) ->
+        val updatedUsedTimeHuman = usedTimeHuman + paths[currentHuman to idH]!! + timeToOpenValve
+        if (updatedUsedTimeHuman > totalTime) {
+            0
+        } else {
+            val gainedPressure = (totalTime - updatedUsedTimeHuman) * valveH.pressure
+            gainedPressure +
+                    ((possibleElephantValves - idH).maxOfOrNull { (idE, valveE) ->
+                        val updatedUsedElephantTime =
+                            usedTimeElephant + paths[currentElephant to idE]!! + timeToOpenValve
+                        if (updatedUsedElephantTime > totalTime) {
+                            0
+                        } else {
+                            val gainedPressureE = (totalTime - updatedUsedElephantTime) * valveE.pressure
+                            gainedPressureE + findMaxPressureV2(
+                                currentHuman = idH,
+                                currentElephant = idE,
+                                usedTimeHuman = updatedUsedTimeHuman,
+                                usedTimeElephant = updatedUsedElephantTime,
+                                valvesMap = valvesMap,
+                                paths = paths,
+                                openedValves = openedValves + idH + idE
+                            )
+                        }
+                    } ?: 0)
+        }
+    } ?: 0
+}
+
 //Valve MF has flow rate=0; tunnels lead to valves QO, GQ
 fun String.toValve() = Valve(
     id = substring(6, 8),
@@ -98,8 +149,12 @@ data class Valve(
 
 
 fun task2(input: List<String>): Int {
-    return -2
+    val valves = input.map { it.toValve() }
+    val map = valves.associateBy { it.id }
+    val paths = precomputeShortestPaths(map)
+    return findMaxPressureV2("AA", "AA", 0, 0, map, paths, emptySet())
 }
 
 
 fun main() = printSolutions(16, 2022, { input -> task1(input) }, { input -> task2(input) })
+//2584 2588 2592 2600
