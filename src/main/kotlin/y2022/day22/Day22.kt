@@ -46,40 +46,41 @@ fun nextPosition2(
 ): Coordinate {
     var currentPos = current
     for (i in 1..moveLength) {
+        val (currentRow, currentCol) = currentPos
         val nextPos = when (direction) {
             "up" -> {
-                val rowUp = currentPos.row - 1
-                if (rows[rowUp][currentPos.col] != ' ') {
-                    Coordinate(rowUp, currentPos.col)
+                val nextRow = currentRow - 1
+                if (rows[nextRow][currentCol] != ' ') {
+                    Coordinate(nextRow, currentCol)
                 } else {
-                    Coordinate(cols[currentPos.col].lastCell(), currentPos.col)
+                    Coordinate(cols[currentCol].lastCell(), currentCol)
                 }
             }
 
             "down" -> {
-                val rowDown = currentPos.row + 1
-                if (rows[rowDown][currentPos.col] != ' ') {
-                    Coordinate(rowDown, currentPos.col)
+                val nextRow = currentRow + 1
+                if (rows[nextRow][currentCol] != ' ') {
+                    Coordinate(nextRow, currentCol)
                 } else {
-                    Coordinate(cols[currentPos.col].firstCell(), currentPos.col)
+                    Coordinate(cols[currentCol].firstCell(), currentCol)
                 }
             }
 
             "left" -> {
-                val colLeft = currentPos.col - 1
-                if (rows[currentPos.row][colLeft] != ' ') {
-                    Coordinate(currentPos.row, colLeft)
+                val nextCol = currentCol - 1
+                if (rows[currentRow][nextCol] != ' ') {
+                    Coordinate(currentRow, nextCol)
                 } else {
-                    Coordinate(currentPos.row, rows[currentPos.row].lastCell())
+                    Coordinate(currentRow, rows[currentRow].lastCell())
                 }
             }
 
             "right" -> {
-                val colRight = currentPos.col + 1
-                if (rows[currentPos.row][colRight] != ' ') {
-                    Coordinate(currentPos.row, colRight)
+                val nextCol = currentCol + 1
+                if (rows[currentRow][nextCol] != ' ') {
+                    Coordinate(currentRow, nextCol)
                 } else {
-                    Coordinate(currentPos.row, rows[currentPos.row].firstCell())
+                    Coordinate(currentRow, rows[currentRow].firstCell())
                 }
             }
 
