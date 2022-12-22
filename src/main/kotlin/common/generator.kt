@@ -35,10 +35,14 @@ package y$year.day$day
 import common.printSolutions
 
 
-fun task1(input: List<String>) = -1
+fun task1(input: List<String>): Int {
+    return -1
+}
 
 
-fun task2(input: List<String>) = -1
+fun task2(input: List<String>): Int {
+    return -1
+}
 
 
 fun main() = printSolutions($day, $year, { input -> task1(input) }, { input -> task2(input) })
