@@ -42,12 +42,7 @@ private fun moveProposal(position: Coordinate, allPositions: Set<Coordinate>, di
         }
     }
 
-private fun Coordinate.hasNoNeighbors(allPositions: Set<Coordinate>) =
-    (-1..1).flatMap { r ->
-        (-1..1).mapNotNull { c ->
-            if(r==0 && c==0) null else Coordinate(row + r, col + c)
-        }
-    }.none { it in allPositions }
+private fun Coordinate.hasNoNeighbors(allPositions: Set<Coordinate>) = neighbors().none { it in allPositions }
 
 private fun Coordinate.directionNeighbors(direction: String): Set<Coordinate> =
     when (direction) {
@@ -79,7 +74,6 @@ private fun getElvesPositions(input: List<String>) = input.flatMapIndexed { row,
 }.toMutableSet()
 
 fun task2(input: List<String>): Int {
-    val t0 = System.currentTimeMillis()
     val elvesPositions = getElvesPositions(input)
     val directions = mutableListOf("N", "S", "W", "E")
 
@@ -91,7 +85,6 @@ fun task2(input: List<String>): Int {
             moveProposal(it, elvesPositions, directions)
         }.filter { (_, v) -> v != null }
         if (proposals.isEmpty()) {
-            println(System.currentTimeMillis()-t0)
             return rounds
         }
         val duplicates = proposals.values.groupBy { it!! }.filter { (_, v) -> v.size > 1 }.keys
