@@ -10,6 +10,14 @@ data class Coordinate(
                 if (r == 0 && c == 0) null else Coordinate(row + r, col + c)
             }
         }.toSet()
+
+    fun left() = Coordinate(row, col - 1)
+    fun right() = Coordinate(row, col + 1)
+    fun up() = Coordinate(row - 1, col)
+    fun down() = Coordinate(row + 1, col)
+
+    fun directNeighbors(): Set<Coordinate> = setOf(left(), right(), up(), down())
+
 }
 
 data class Point(
