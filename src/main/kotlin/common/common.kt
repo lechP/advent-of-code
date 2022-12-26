@@ -7,7 +7,7 @@ fun printSolutions(
     year: Int,
     firstSolution: (List<String>) -> Any,
     secondSolution: (List<String>) -> Any,
-    onlyTestInput: Boolean = false
+    inputs: List<String> = listOf("test", "prod")
 ) {
     val srcdir = "src/main/resources/y$year/day"
     val inputFile = "$srcdir$day/input"
@@ -17,9 +17,11 @@ fun printSolutions(
     val input = File(inputFile).useLines { it.toList() }
 
 
-    println(firstSolution(testInput))
-    println(secondSolution(testInput))
-    if (!onlyTestInput) {
+    if("test" in inputs) {
+        println(firstSolution(testInput))
+        println(secondSolution(testInput))
+    }
+    if ("prod" in inputs) {
         println(firstSolution(input))
         println(secondSolution(input))
     }
