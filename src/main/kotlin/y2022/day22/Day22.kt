@@ -114,7 +114,7 @@ fun task2(input: List<String>): Int {
     val paddedRowLength = map.maxOf { it.length } + 2
     // add empty row at start, empty col at left and right
     val rows = listOf("".padEnd(paddedRowLength)) + map.map { " $it".padEnd(paddedRowLength) }
-    // jeszcze lepiej - zrob kostke i kazdy element niech zna swoich sasiadow
+    // remember coordinates of '.' and '#'
     val cube: Map<Coordinate, Char> = rows.flatMapIndexed { rowId, row ->
         row.mapIndexedNotNull { colId, char ->
             if (char != ' ') {
@@ -125,7 +125,10 @@ fun task2(input: List<String>): Int {
     var position = Coordinate(row = 1, col = rows[1].indexOf('.'))
     var direction = "right"
 
+
+
     val (lengths, turns) = input.last().parseInstruction()
+    val store = mutableListOf(situation(0, 0, 'X', position, direction))
     val sideSize = input.first().trim().length
     val cubePassthroughs = cubePassthroughs(sideSize)
     val dirSwitches = dirSwitches(sideSize)
@@ -135,12 +138,35 @@ fun task2(input: List<String>): Int {
         position = res.first
         direction = res.second
         direction = nextDirection(direction, turns[i])
+        store.add(situation(i+1, lengths[i], turns[i], position, direction))
     }
     val finalRes = nextPosition2(position, direction, lengths.last(), cube, cubePassthroughs, dirSwitches)
     position = finalRes.first
+    direction = finalRes.second
+    store.add(situation(turns.size, lengths.last(), 'X', position, direction))
 
     return 1000 * position.row + 4 * position.col + facingValue(direction)
 }
+
+data class StoredSituation(
+    val id: Int,
+    val movedSteps: Int,
+    val turned: Char,
+    val row: Int,
+    val col: Int,
+    val dir: String,
+) {
+    override fun toString(): String = "$id: $movedSteps $turned | $row,$col | $dir"
+}
+
+fun situation(id: Int, movedSteps: Int, turned: Char, coord: Coordinate, dir: String, ) = StoredSituation(
+    id,
+    movedSteps,
+    turned,
+    coord.row,
+    coord.col,
+    dir,
+)
 
 fun nextPosition2(
     current: Coordinate,
@@ -154,67 +180,29 @@ fun nextPosition2(
     var currentDir = direction
     for (i in 1..moveLength) {
         val (currentRow, currentCol) = currentPos
-        val nextPos = when (currentDir) {
-            "up" -> {
-                val nextRow = currentRow - 1
-                val nextCandidate = Coordinate(nextRow, currentCol)
-                if (cube.containsKey(nextCandidate)) {
-                    nextCandidate
-                } else {
-                    currentDir = dirSwitches[currentPos]!!
-                    cubePassthroughs[currentPos]!!
-                }
-            }
 
-            "down" -> {
-                val nextRow = currentRow + 1
-                val nextCandidate = Coordinate(nextRow, currentCol)
-                if (cube.containsKey(nextCandidate)) {
-                    nextCandidate
-                } else {
-                    currentDir = dirSwitches[currentPos]!!
-                    cubePassthroughs[currentPos]!!
-                }
-            }
-
-            "left" -> {
-                val nextCol = currentCol - 1
-                val nextCandidate = Coordinate(currentRow, nextCol)
-                if (cube.containsKey(nextCandidate)) {
-                    nextCandidate
-                } else {
-                    currentDir = dirSwitches[currentPos]!!
-                    cubePassthroughs[currentPos]!!
-                }
-            }
-
-            "right" -> {
-                val nextCol = currentCol + 1
-                val nextCandidate = Coordinate(currentRow, nextCol)
-                if (cube.containsKey(nextCandidate)) {
-                    nextCandidate
-                } else {
-                    currentDir = dirSwitches[currentPos]!!
-                    cubePassthroughs[currentPos]!!
-                }
-            }
-
+        val nextCandidate = when (currentDir) {
+            "up" -> Coordinate(currentRow - 1, currentCol)
+            "down" -> Coordinate(currentRow + 1, currentCol)
+            "left" -> Coordinate(currentRow, currentCol - 1)
+            "right" -> Coordinate(currentRow, currentCol + 1)
             else -> throw RuntimeException("unrecognized direction: $current")
         }
-        if (cube[nextPos] == '#') {
+        val nextPos = if (cube.containsKey(nextCandidate)) {
+            nextCandidate to currentDir
+        } else {
+            cubePassthroughs[currentPos]!! to dirSwitches[currentPos]!!
+        }
+
+        if (cube[nextPos.first] == '#') {
             break
         } else {
-            currentPos = nextPos
+            currentPos = nextPos.first
+            currentDir = nextPos.second
         }
     }
     return currentPos to currentDir
 }
-
-fun List<Pair<Coordinate, Coordinate>>.andReverse() =
-    this + map { (first, second) -> second to first }
-
-fun IntProgression.col(col: Int) = map { Coordinate(it, col) }
-fun IntProgression.row(row: Int) = map { Coordinate(row, it) }
 
 
 fun main() = printSolutions(22, 2022, { input -> task1(input) }, { input -> task2(input) })

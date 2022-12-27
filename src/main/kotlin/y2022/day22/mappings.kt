@@ -90,3 +90,9 @@ private val dirSwitches: Map<Coordinate, String> =
  col 150 1-50 <-> col 100 150-101!!!! ODWROTNI right->left left<-right
  col 51 1-50 <-> col 1 150-101 !!!! ODWROTNIE left->right right<-left
  */
+
+private fun List<Pair<Coordinate, Coordinate>>.andReverse() =
+    this + map { (first, second) -> second to first }
+
+private fun IntProgression.col(col: Int) = map { Coordinate(it, col) }
+private fun IntProgression.row(row: Int) = map { Coordinate(row, it) }
