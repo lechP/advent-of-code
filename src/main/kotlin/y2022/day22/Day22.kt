@@ -109,7 +109,7 @@ fun String.parseInstruction(): Pair<List<Int>, List<Char>> {
     return lengths to dirs
 }
 
-fun task2(input: List<String>): Pair<Int, List<StoredSituation>> {
+fun task2(input: List<String>): Int {
     val map = input.dropLast(1)
     val paddedRowLength = map.maxOf { it.length } + 2
     // add empty row at start, empty col at left and right
@@ -122,51 +122,20 @@ fun task2(input: List<String>): Pair<Int, List<StoredSituation>> {
             } else null
         }
     }.toMap()
-    var position = Coordinate(row = 1, col = rows[1].indexOf('.'))
-    var direction = "right"
 
-
-
+    var orientation = Orientation(Coordinate(row = 1, col = rows[1].indexOf('.')), "right")
     val (lengths, turns) = input.last().parseInstruction()
-    val store = mutableListOf(situation(0, 0, 'X', position, direction))
 
     for (i in turns.indices) {
-        val res = nextPosition2(Orientation(position, direction), lengths[i], cube)
-        position = res.position
-        direction = res.direction
-        direction = nextDirection(direction, turns[i])
-        store.add(situation(i+1, lengths[i], turns[i], position, direction))
+        orientation = nextOrientation(orientation, lengths[i], cube)
+        orientation = orientation.copy(direction = nextDirection(orientation.direction, turns[i]))
     }
-    val finalRes = nextPosition2(Orientation(position, direction), lengths.last(), cube)
-    position = finalRes.position
-    direction = finalRes.direction
-    store.add(situation(turns.size, lengths.last(), 'X', position, direction))
+    val finalOrientation = nextOrientation(orientation, lengths.last(), cube)
 
-    val result = 1000 * position.row + 4 * position.col + facingValue(direction)
-    return result to store
+    return 1000 * finalOrientation.position.row + 4 * finalOrientation.position.col + facingValue(finalOrientation.direction)
 }
 
-data class StoredSituation(
-    val id: Int,
-    val movedSteps: Int,
-    val turned: Char,
-    val row: Int,
-    val col: Int,
-    val dir: String,
-) {
-    override fun toString(): String = "$id: $movedSteps $turned | $row,$col | $dir"
-}
-
-fun situation(id: Int, movedSteps: Int, turned: Char, coord: Coordinate, dir: String, ) = StoredSituation(
-    id,
-    movedSteps,
-    turned,
-    coord.row,
-    coord.col,
-    dir,
-)
-
-fun nextPosition2(
+fun nextOrientation(
     orientation: Orientation,
     moveLength: Int,
     cube: Map<Coordinate, Char>,
@@ -203,4 +172,4 @@ data class Orientation(
 )
 
 
-fun main() = printSolutions(22, 2022, { input -> task1(input) }, { input -> task2(input).first }, inputs = listOf("prod"))
+fun main() = printSolutions(22, 2022, { input -> task1(input) }, { input -> task2(input) }, inputs = listOf("prod"))
