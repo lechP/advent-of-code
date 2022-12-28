@@ -109,7 +109,7 @@ fun String.parseInstruction(): Pair<List<Int>, List<Char>> {
     return lengths to dirs
 }
 
-fun task2(input: List<String>): Int {
+fun task2(input: List<String>): Pair<Int, List<StoredSituation>> {
     val map = input.dropLast(1)
     val paddedRowLength = map.maxOf { it.length } + 2
     // add empty row at start, empty col at left and right
@@ -129,23 +129,21 @@ fun task2(input: List<String>): Int {
 
     val (lengths, turns) = input.last().parseInstruction()
     val store = mutableListOf(situation(0, 0, 'X', position, direction))
-    val sideSize = input.first().trim().length
-    val cubePassthroughs = cubePassthroughs(sideSize)
-    val dirSwitches = dirSwitches(sideSize)
 
     for (i in turns.indices) {
-        val res = nextPosition2(position, direction, lengths[i], cube, cubePassthroughs, dirSwitches)
-        position = res.first
-        direction = res.second
+        val res = nextPosition2(Orientation(position, direction), lengths[i], cube)
+        position = res.position
+        direction = res.direction
         direction = nextDirection(direction, turns[i])
         store.add(situation(i+1, lengths[i], turns[i], position, direction))
     }
-    val finalRes = nextPosition2(position, direction, lengths.last(), cube, cubePassthroughs, dirSwitches)
-    position = finalRes.first
-    direction = finalRes.second
+    val finalRes = nextPosition2(Orientation(position, direction), lengths.last(), cube)
+    position = finalRes.position
+    direction = finalRes.direction
     store.add(situation(turns.size, lengths.last(), 'X', position, direction))
 
-    return 1000 * position.row + 4 * position.col + facingValue(direction)
+    val result = 1000 * position.row + 4 * position.col + facingValue(direction)
+    return result to store
 }
 
 data class StoredSituation(
@@ -169,40 +167,40 @@ fun situation(id: Int, movedSteps: Int, turned: Char, coord: Coordinate, dir: St
 )
 
 fun nextPosition2(
-    current: Coordinate,
-    direction: String,
+    orientation: Orientation,
     moveLength: Int,
     cube: Map<Coordinate, Char>,
-    cubePassthroughs: Map<Coordinate, Coordinate>,
-    dirSwitches: Map<Coordinate, String>,
-): Pair<Coordinate, String> {
-    var currentPos = current
-    var currentDir = direction
+): Orientation {
+    var current = orientation
     for (i in 1..moveLength) {
-        val (currentRow, currentCol) = currentPos
+        val (currentRow, currentCol) = current.position
 
-        val nextCandidate = when (currentDir) {
+        val nextPosition = when (current.direction) {
             "up" -> Coordinate(currentRow - 1, currentCol)
             "down" -> Coordinate(currentRow + 1, currentCol)
             "left" -> Coordinate(currentRow, currentCol - 1)
             "right" -> Coordinate(currentRow, currentCol + 1)
             else -> throw RuntimeException("unrecognized direction: $current")
         }
-        val nextPos = if (cube.containsKey(nextCandidate)) {
-            nextCandidate to currentDir
+        val next = if (cube.containsKey(nextPosition)) {
+            Orientation(nextPosition, current.direction)
         } else {
-            cubePassthroughs[currentPos]!! to dirSwitches[currentPos]!!
+            orientationMappings[current]!!
         }
 
-        if (cube[nextPos.first] == '#') {
+        if (cube[next.position] == '#') {
             break
         } else {
-            currentPos = nextPos.first
-            currentDir = nextPos.second
+            current = next
         }
     }
-    return currentPos to currentDir
+    return current
 }
 
+data class Orientation(
+    val position: Coordinate,
+    val direction: String,
+)
 
-fun main() = printSolutions(22, 2022, { input -> task1(input) }, { input -> task2(input) })
+
+fun main() = printSolutions(22, 2022, { input -> task1(input) }, { input -> task2(input).first }, inputs = listOf("prod"))

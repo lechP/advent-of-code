@@ -25,6 +25,16 @@ data class Point(
     val y: Int,
 )
 
+data class Point2D(
+    val x: Int,
+    val y: Int,
+) {
+    operator fun minus(other: Point2D): Point2D =
+        Point2D(this.x - other.x, this.y - other.y)
+    operator fun plus(other: Point2D): Point2D =
+        Point2D(this.x + other.x, this.y + other.y)
+}
+
 data class Point3D(
     val x: Int,
     val y: Int,

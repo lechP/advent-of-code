@@ -2,13 +2,13 @@ package y2022.day22
 
 import common.Coordinate
 
-fun dirSwitches(sideSize: Int) = when(sideSize) {
+fun dirSwitches(sideSize: Int) = when (sideSize) {
     4 -> dirSwitchesSmall
     100 -> dirSwitches
     else -> throw IllegalArgumentException("$sideSize")
 }
 
-fun cubePassthroughs(sideSize: Int) = when(sideSize) {
+fun cubePassthroughs(sideSize: Int) = when (sideSize) {
     4 -> cubePassthroughsSmall
     100 -> cubePassthroughs
     else -> throw IllegalArgumentException("$sideSize")
@@ -81,6 +81,26 @@ private val dirSwitches: Map<Coordinate, String> =
                     (1..50).col(51).map { it to "right" } +
                     (150 downTo 101).col(1).map { it to "right" }
             ).toMap()
+
+val orientationMappings: Map<Orientation, Orientation> =
+    (
+            (101..150).row(50, "down").zip((51..100).col(100, "left")) +
+                    (51..100).col(100, "right").zip((101..150).row(50, "up")) +
+                    (1..50).row(101, "up").zip((51..100).col(51, "right")) +
+                    (51..100).col(51, "left").zip((1..50).row(101, "down")) +
+                    (151..200).col(50, "right").zip((51..100).row(150, "up")) +
+                    (51..100).row(150, "down").zip((151..200).col(50, "left")) +
+                    (51..100).row(1, "up").zip((151..200).col(1, "right")) +
+                    (151..200).col(1, "left").zip((51..100).row(1, "down")) +
+                    (101..150).row(1, "up").zip((1..50).row(200, "up")) +
+                    (1..50).row(200, "down").zip((101..150).row(1, "down")) +
+                    (1..50).col(150, "right").zip((150 downTo 101).col(100, "left")) +
+                    (150 downTo 101).col(100, "right").zip((1..50).col(150, "left")) +
+                    (1..50).col(51, "left").zip((150 downTo 101).col(1, "right")) +
+                    (150 downTo 101).col(1, "left").zip((1..50).col(51, "right"))
+
+            ).toMap()
+
 /*
  row 50 101-150 <-> col 100 51-100 down->left up<-right
  row 101 1-50 <-> col 51 51-100 up->right down<-left
@@ -95,4 +115,6 @@ private fun List<Pair<Coordinate, Coordinate>>.andReverse() =
     this + map { (first, second) -> second to first }
 
 private fun IntProgression.col(col: Int) = map { Coordinate(it, col) }
+private fun IntProgression.col(col: Int, dir: String) = map { Orientation(Coordinate(it, col), dir) }
 private fun IntProgression.row(row: Int) = map { Coordinate(row, it) }
+private fun IntProgression.row(row: Int, dir: String) = map { Orientation(Coordinate(row, it), dir) }
